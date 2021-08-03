@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "jungleVault",
+  "version": "0.0.2",
+  "description": "Easy browser-integrated Banano wallet",
+  "icons": {
+    "128": "icon128.png",
+    "32": "icon128.png",
+    "48": "icon128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "16": "icon128.png",
+      "32": "icon128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Control your wallet"
+  }
+}
+

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>jungleVault</title>
+    <script src="popup.js"></script>
+    <script src="dist/bananojs.js"></script>
+    <style>
+      body {
+        height: 460px;
+        width: 335px;
+        background-color: rgb(42, 42, 46);
+      }
+      ::-moz-selection { background: #FBDD11; }
+      ::selection { background: #FBDD11; }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="dist/pageloader.css">
+  </head>
+  <body>
+    <div id="loader" class="pageloader is-active"><span class="title">jungleVault</span></div>
+
+    <div id="welcomer" style="display: none;">
+      <div id="helloPage">
+        <center>
+          <nav class="panel is-success">
+          <p class="panel-heading">jungleVault</p>
+          <h2 class="subtitle"><font color="#FFFFFF">Configure wallet</font></h2>
+          </nav>
+          <button id="createWallet" class="button is-success">Create wallet</button>
+          <button id="importFromSeed" class="button is-success">Import from seed</button>
+        </center>
+      </div>
+
+      <div id="importFromSeedDialog" style="display: none;">
+        <center>
+          <nav class="panel is-success">
+            <p class="panel-heading">Import from seed</p>
+            </nav>
+          <h3 for="seedKeyBox">Seed:</h3>
+          <input type="text" id="seedKeyBox" name="seedKey" class="input is-success"><br><br>
+          <button id="backToHelloPage" class="button is-success">Back</button>
+          <button id="importFromSeedSubmit" class="button is-success">Import from seed</button>
+        </center>
+      </div>
+    </div>
+
+    <div id="walletInterface" style="display: none;">
+        <nav class="panel is-success">
+          <p id="walletAddress" class="panel-heading is-clickable"></p>
+          <center>
+            <img id="monKey" width="95" height="95" src="">
+            <h2 class="subtitle"><font color="#FFFFFF"><p id="walletBalance">0 BAN</p></font></h2>
+          </center>
+        </nav>
+      <center>
+        <div class="block">
+          <button id="receiveBananos" class="button is-success">Receive</button>
+          <button id="sendBananos" class="button is-success">Send</button>
+        </div>
+        <div class="block">
+          <button id="deleteWallet" class="button is-danger">Delete wallet!</button>
+        </div>
+        <div id="sendMenu" style="display: none;">
+          <input id="toSend" class="input is-success" type="text" placeholder="Wallet address">
+          <input id="toSendAmount" class="input is-success" type="text" placeholder="Amount">
+          <button id="sendBananoConfirm" class="button is-success">Send</button>
+        </div>
+      </center>
+    </div>
+
+    <div id="notification" class="notification" style="display:none; position:fixed; bottom:0; height:auto; margin-top:40px; width:100%; text-align:center;">
+    </div>
+  </body>
+</html>
+
