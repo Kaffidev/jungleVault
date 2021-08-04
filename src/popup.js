@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
       bananojs.getPublicKey(privKey).then(publicKey => {
         account = bananojs.getBananoAccount(publicKey)
         walletSeed = seed.seed
-        document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 19).join('') + '...'
+        document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 18).join('') + '...'
         document.getElementById('monKey').src = `http://monkey.banano.cc/api/v1/monkey/${account}`
         updateBalance()
         setTimeout(() => {
@@ -39,10 +39,13 @@ document.addEventListener('DOMContentLoaded', function (event) {
   document.getElementById('receiveBananos').onclick = receiveBananos
   document.getElementById('sendBananos').onclick = () => {
     if (document.getElementById('sendMenu').style.display === 'none') {
-      hide('deleteWallet')
+      hide('openSettings')
+      hide('optionsMenu')
+      hide('representativeChangeMenu')
+      show('optionsList')
       show('sendMenu')
     } else {
-      show('deleteWallet')
+      show('openSettings')
       hide('sendMenu')
     }
   }
@@ -52,15 +55,37 @@ document.addEventListener('DOMContentLoaded', function (event) {
     hide('importFromSeedDialog')
     show('helloPage')
   }
-  document.getElementById('burger').onclick = () => {
-    let burgerIcon = document.getElementById('burger')
-    let dropMenu = document.getElementById('navMenuExample')
-    burgerIcon.classList.toggle('is-active')
-    dropMenu.classList.toggle('is-active')
+  document.getElementById('openSettings').onclick = () => {
+    if (document.getElementById('optionsMenu').style.display === 'none') {
+      show('optionsMenu')
+    } else {
+      hide('optionsMenu')
+    }
   }
+  document.getElementById('changeRepresentative').onclick = () => {
+    show('representativeChangeMenu')
+    hide('optionsList')
+    hide('openSettings')
+  }
+  document.getElementById('backToOptions').onclick = () => {
+    hide('representativeChangeMenu')
+    show('openSettings')
+    show('optionsList')
+  }
+  document.getElementById('changePresentativeConfirm').onclick = changeRepresentative
 })
 
-window.addEventListener("contextmenu", function(e) { e.preventDefault() })
+// window.addEventListener("contextmenu", function(e) { e.preventDefault() })
+
+function changeRepresentative () {
+  bananojs.changeBananoRepresentativeForSeed(walletSeed, 0, document.getElementById('presentativeAccount').value).then(hash => {
+    hide('representativeChangeMenu')
+    show('optionsList')
+    hide('optionsMenu')
+    document.getElementById('presentativeAccount').value = ''
+    sendNotification('Representative changed success!')
+  })
+}
 
 function copyWalletAddress () {
   copyToClipboard(account)
@@ -73,6 +98,8 @@ function sendBananos () {
 
   bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
     updateBalance()
+    document.getElementById('toSend').value = ''
+    document.getElementById('toSendAmount').value = ''
     sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
   })
 }
@@ -92,13 +119,14 @@ function importFromSeed () {
   if (bananojs.bananoUtil.isSeedValid(seedKey).valid === false) return sendNotification('Invalid seed!')
   chrome.storage.local.set({ seed: seedKey }, function () {
     walletSeed = seedKey
+    document.getElementById('seedKeyBox').value = ''
     sendNotification('Importing success!')
     hide('welcomer')
     show('walletInterface')
     const privateKey = bananojs.getPrivateKey(seedKey, 0)
     bananojs.getPublicKey(privateKey).then(publicKey => {
       account = bananojs.getBananoAccount(publicKey)
-      document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 19).join('') + '...'
+      document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 18).join('') + '...'
       document.getElementById('monKey').src = `http://monkey.banano.cc/api/v1/monkey/${account}`
       updateBalance()
     })
@@ -119,7 +147,7 @@ function createWallet () {
     const privKey = bananojs.getPrivateKey(seed, 0)
     bananojs.getPublicKey(privKey).then(publicKey => {
       account = bananojs.getBananoAccount(publicKey)
-      document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 19).join('') + '...'
+      document.getElementById('walletAddress').innerHTML = '<span class="tag is-rounded is-link">Copy</span> ' + account.split('', 18).join('') + '...'
       document.getElementById('monKey').src = `http://monkey.banano.cc/api/v1/monkey/${bananojs.getBananoAccount(publicKey)}`
       updateBalance()
       hide('welcomer')

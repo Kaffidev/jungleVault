@@ -58,12 +58,24 @@
           <button id="sendBananos" class="button is-success">Send</button>
         </div>
         <div class="block">
-          <button id="deleteWallet" class="button is-danger">Delete wallet!</button>
+          <button id="openSettings" class="button is-dark">Settings</button>
         </div>
-        <div id="sendMenu" style="display: none;">
+        <div id="sendMenu" class="notification" style="display: none;">
           <input id="toSend" class="input is-success" type="text" placeholder="Wallet address">
           <input id="toSendAmount" class="input is-success" type="text" placeholder="Amount">
           <button id="sendBananoConfirm" class="button is-success">Send</button>
+        </div>
+        <div id="optionsMenu" style="display: none;">
+          <div id="optionsList" class="container is-max-widescreen">
+              <button id="changeRepresentative" class="button is-success">Change representative</button>
+              <button id="deleteWallet" class="button is-danger">Delete wallet</button>
+          </div>
+          <div id="representativeChangeMenu" class="container notification is-max-widescreen" style="display: none;">
+            <h3 for="presentativeAccount">Presentative account:</h3>
+            <input type="text" id="presentativeAccount" name="presentativeBox" class="input is-success is-small"><br><br>
+            <button id="backToOptions" class="button is-success">Back</button>
+            <button id="changePresentativeConfirm" class="button is-success">Change presentative</button>
+          </div>   
         </div>
       </center>
     </div>
