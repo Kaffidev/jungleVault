@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
   document.getElementById('changePresentativeConfirm').onclick = changeRepresentative
 })
 
-// window.addEventListener("contextmenu", function(e) { e.preventDefault() })
+window.addEventListener("contextmenu", function(e) { e.preventDefault() })
 
 function changeRepresentative () {
   bananojs.changeBananoRepresentativeForSeed(walletSeed, 0, document.getElementById('presentativeAccount').value).then(hash => {
