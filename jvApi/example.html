@@ -1,0 +1,9 @@
+<script src="index.js"></script>
+<script>
+  function makeTransaction() {
+   requestTransaction('ban_1kafipomataupan1u16af5wjh18myiqt1aesajnayzewz5btdqfioitzh6h8', 0.01).then(result => {
+     document.getElementById('requestTransaction').innerHTML = result
+    })
+  }
+</script>
+<button id="requestTransaction" onclick="makeTransaction()">Click me</button>

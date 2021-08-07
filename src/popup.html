@@ -9,6 +9,7 @@
         height: 460px;
         width: 335px;
         background-color: rgb(42, 42, 46);
+        overflow: hidden;
       }
       ::-moz-selection { background: #FBDD11; }
       ::selection { background: #FBDD11; }
@@ -75,7 +76,16 @@
             <input type="text" id="presentativeAccount" name="presentativeBox" class="input is-success is-small"><br><br>
             <button id="backToOptions" class="button is-success">Back</button>
             <button id="changePresentativeConfirm" class="button is-success">Change presentative</button>
-          </div>   
+          </div>
+        </div>
+        <div id="transactionAcceptMenu" class="container notification is-max-widescreen" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); height: 100vh; width: 335px;">
+          <h1 class="title is-1">Transaction</h1>
+          <input id="transactionSendingTo" class="input is-success" type="text" disabled>
+          <span id="transactionSendingAmount" class="tag is-link">Amount:</span>
+          <div class="block">
+            <button id="cancelTransaction" class="button is-danger">Cancel</button>
+            <button id="confirmTransaction" class="button is-success">Confirm</button>
+          </div>
         </div>
       </center>
     </div>

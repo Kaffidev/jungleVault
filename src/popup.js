@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
   bananojs = window.bananocoinBananojs
   bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api')
 
+
   chrome.storage.local.get('seed', function (seed) {
     if (typeof seed.seed === 'undefined') {
       show('welcomer')
@@ -14,6 +15,23 @@ document.addEventListener('DOMContentLoaded', function (event) {
         document.getElementById('loader').classList = 'pageloader'
       }, 300)
     } else {
+      let queryDict = {}
+      location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
+    
+      if(queryDict.toSend) {
+        waitForConfirm(queryDict.toSend, queryDict.amount).then(() => {
+          bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, queryDict.toSend, queryDict.amount).then(hash => {
+            document.getElementById('toSend').value = ''
+            document.getElementById('toSendAmount').value = ''
+            madePayment = hash
+          }).catch(err => {
+            madePayment = 'WALLET_ERROR'
+          })
+        }).catch(err => {
+          madePayment = 'CANCELLED_BY_USER'
+        })
+      }
+
       show('walletInterface')
       const privKey = bananojs.getPrivateKey(seed.seed, 0)
       bananojs.getPublicKey(privKey).then(publicKey => {
@@ -96,11 +114,15 @@ function sendBananos () {
   const toSend = document.getElementById('toSend').value
   const toSendAmount = document.getElementById('toSendAmount').value
 
-  bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
-    updateBalance()
-    document.getElementById('toSend').value = ''
-    document.getElementById('toSendAmount').value = ''
-    sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+  waitForConfirm(toSend, toSendAmount).then(() => {
+    bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
+      updateBalance()
+      document.getElementById('toSend').value = ''
+      document.getElementById('toSendAmount').value = ''
+      sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+    })
+  }).catch(err => {
+    sendNotification('Transaction cancelled by user.')
   })
 }
 
@@ -118,6 +140,8 @@ function importFromSeed () {
   const seedKey = document.getElementById('seedKeyBox').value
   if (bananojs.bananoUtil.isSeedValid(seedKey).valid === false) return sendNotification('Invalid seed!')
   chrome.storage.local.set({ seed: seedKey }, function () {
+    showLoadingScreen()
+
     walletSeed = seedKey
     document.getElementById('seedKeyBox').value = ''
     sendNotification('Importing success!')
@@ -141,6 +165,8 @@ function receiveBananos () {
 }
 
 function createWallet () {
+  showLoadingScreen()
+
   const seed = getRandomHex32()
   chrome.storage.local.set({ seed: seed }, function () {
     walletSeed = seed
@@ -174,6 +200,41 @@ function sendNotification (text) {
   }, 3000)
 }
 
+function waitForConfirm (toAddress, amount) {
+  return new Promise((resolve, reject) => {
+    showLoadingScreen()
+
+    document.getElementById('transactionSendingTo').value = `${toAddress}`
+    document.getElementById('transactionSendingAmount').innerHTML = `Amount: ${amount} BAN`
+    hide('representativeChangeMenu')
+    hide('openSettings')
+    hide('sendMenu')
+    show('transactionAcceptMenu')
+
+    document.getElementById('confirmTransaction').onclick = () => {
+      hide('transactionAcceptMenu')
+      show('openSettings')
+      document.getElementById('transactionSendingTo').value = ``
+      document.getElementById('transactionSendingAmount').innerHTML = `Amount:`
+      resolve()
+    }
+
+    document.getElementById('cancelTransaction').onclick = () => {
+      hide('transactionAcceptMenu')
+      show('openSettings')
+      document.getElementById('transactionSendingTo').value = ``
+      document.getElementById('transactionSendingAmount').innerHTML = `Amount:`
+      reject()
+    }
+  })
+}
+
+function showLoadingScreen() {
+  document.getElementById('loader').classList = 'pageloader is-active'
+  setTimeout(() => {
+    document.getElementById('loader').classList = 'pageloader'
+  }, 350)
+}
 const hide = (id) => {
   const elt = document.getElementById(id)
   if (elt) {
