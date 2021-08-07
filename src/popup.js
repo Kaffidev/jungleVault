@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function (event) {
   bananojs = window.bananocoinBananojs
   bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api')
 
-
   chrome.storage.local.get('seed', function (seed) {
     if (typeof seed.seed === 'undefined') {
       show('welcomer')
@@ -15,12 +14,12 @@ document.addEventListener('DOMContentLoaded', function (event) {
         document.getElementById('loader').classList = 'pageloader'
       }, 300)
     } else {
-      let queryDict = {}
-      location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]})
-    
-      if(queryDict.toSend) {
-        waitForConfirm(queryDict.toSend, queryDict.amount).then(() => {
-          bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, queryDict.toSend, queryDict.amount).then(hash => {
+      const url = new URL(location)
+
+      if (url.searchParams.has('recipient')) {
+        const transactionAmount = parseBananoAmount(url.searchParams.get('amount'))
+        waitForConfirm(url.searchParams.get('recipient'), transactionAmount).then(() => {
+          bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, url.searchParams.get('recipient'), transactionAmount).then(hash => {
             document.getElementById('toSend').value = ''
             document.getElementById('toSendAmount').value = ''
             madePayment = hash
@@ -93,7 +92,11 @@ document.addEventListener('DOMContentLoaded', function (event) {
   document.getElementById('changePresentativeConfirm').onclick = changeRepresentative
 })
 
-window.addEventListener("contextmenu", function(e) { e.preventDefault() })
+window.addEventListener('contextmenu', function (e) { e.preventDefault() })
+
+function parseBananoAmount (raw) {
+  return parseFloat(bananojs.getBananoPartsAsDecimal(bananojs.bananoUtil.getAmountPartsFromRaw(raw, 'ban_'))) + ''
+}
 
 function changeRepresentative () {
   bananojs.changeBananoRepresentativeForSeed(walletSeed, 0, document.getElementById('presentativeAccount').value).then(hash => {
@@ -214,22 +217,22 @@ function waitForConfirm (toAddress, amount) {
     document.getElementById('confirmTransaction').onclick = () => {
       hide('transactionAcceptMenu')
       show('openSettings')
-      document.getElementById('transactionSendingTo').value = ``
-      document.getElementById('transactionSendingAmount').innerHTML = `Amount:`
+      document.getElementById('transactionSendingTo').value = ''
+      document.getElementById('transactionSendingAmount').innerHTML = 'Amount:'
       resolve()
     }
 
     document.getElementById('cancelTransaction').onclick = () => {
       hide('transactionAcceptMenu')
       show('openSettings')
-      document.getElementById('transactionSendingTo').value = ``
-      document.getElementById('transactionSendingAmount').innerHTML = `Amount:`
-      reject()
+      document.getElementById('transactionSendingTo').value = ''
+      document.getElementById('transactionSendingAmount').innerHTML = 'Amount:'
+      reject('TRANSACTION_CANCELLED_BY_USER')
     }
   })
 }
 
-function showLoadingScreen() {
+function showLoadingScreen () {
   document.getElementById('loader').classList = 'pageloader is-active'
   setTimeout(() => {
     document.getElementById('loader').classList = 'pageloader'

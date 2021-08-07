@@ -1,49 +1,49 @@
 let cmid
 
-function showOnCreeper(clickData, tab) {
+function showOnCreeper (clickData, tab) {
   chrome.tabs.create({
     url: `https://creeper.banano.cc/explorer/account/${clickData.selectionText}`
   })
 }
 
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-    if (msg.request === 'updateContextMenu') {
-        var type = msg.selection
-        if (type.startsWith('ban_') && type.length === 64) {
-          var options = {
-            title: 'Wallet ' + type,
-            contexts: ['selection'],
-            id: "parent"
-          }
-          if (cmid != null) {
-              chrome.contextMenus.update(cmid, options)
-          } else {
-              cmid = chrome.contextMenus.create(options)
-              chrome.contextMenus.create({
-                title: "Explore wallet on creeper",
-                contexts: ["selection"],
-                parentId: "parent",
-                id: "showOnCreeper",
-                onclick: showOnCreeper
-              })
-          }
-        } else {
-          if (cmid != null) {
-            chrome.contextMenus.remove(cmid);
-            cmid = null
-          }
-        }
-    }
-})
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+  console.log(msg)
+  if (msg.request === 'createTransaction') {
+    const transactionWindow = window.open(chrome.extension.getURL(`popup.html?recipient=${msg.recipient}&amount=${msg.amount}`), 'gc-popout-window', 'width=335,height=540,resizable=no,scrollbars=1,top=50,left=1200')
+    transactionWindow.madePayment = undefined
+    const transactionChecker = setInterval(() => {
+      if (transactionWindow.madePayment) {
+        transactionWindow.close()
+        clearInterval(transactionChecker)
+      }
+    }, 100)
+  }
 
-chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse) {
-  const transactionWindow = window.open(chrome.extension.getURL(`popup.html?toSend=${request.toSend}&amount=${request.amount}`),"gc-popout-window","width=335,height=540,resizable=no,scrollbars=1,top=50,left=1200")
-  transactionWindow.madePayment = undefined
-  const transactionChecker = setInterval(() => {
-    if(transactionWindow.madePayment) {
-      transactionWindow.close()
-      sendResponse(transactionWindow.madePayment)
-      clearInterval(transactionChecker)
+  if (msg.request === 'updateContextMenu') {
+    const type = msg.selection
+    if (type.startsWith('ban_') && type.length === 64) {
+      const options = {
+        title: 'Wallet ' + type,
+        contexts: ['selection'],
+        id: 'parent'
+      }
+      if (cmid != null) {
+        chrome.contextMenus.update(cmid, options)
+      } else {
+        cmid = chrome.contextMenus.create(options)
+        chrome.contextMenus.create({
+          title: 'Explore wallet on creeper',
+          contexts: ['selection'],
+          parentId: 'parent',
+          id: 'showOnCreeper',
+          onclick: showOnCreeper
+        })
+      }
+    } else {
+      if (cmid != null) {
+        chrome.contextMenus.remove(cmid)
+        cmid = null
+      }
     }
-  }, 100)
+  }
 })
