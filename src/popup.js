@@ -123,6 +123,12 @@ function sendBananos () {
       document.getElementById('toSend').value = ''
       document.getElementById('toSendAmount').value = ''
       sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+    }).catch(err => {
+      if(err.stack.includes('balance') && err.stack.includes('small')) {
+        sendNotification('Insufficent balance!')
+      } else {
+        sendNotification(err)
+      }
     })
   }).catch(err => {
     sendNotification('Transaction cancelled by user.')
@@ -134,7 +140,7 @@ function updateBalance () {
     if (accountInfo.error) {
       document.getElementById('walletBalance').innerHTML = '0 BAN'
     } else {
-      document.getElementById('walletBalance').innerHTML = `${Number(bananojs.getBananoPartsFromRaw(accountInfo.balance).banano) + Number((bananojs.getBananoPartsFromRaw(accountInfo.balance).banoshi / 100))} BAN (${Number(bananojs.getBananoPartsFromRaw(accountInfo.pending).banano) + Number((bananojs.getBananoPartsFromRaw(accountInfo.pending).banoshi / 100))} Pending)`
+      document.getElementById('walletBalance').innerHTML = `${parseBananoAmount(accountInfo.balance)} BAN (${parseBananoAmount(accountInfo.pending)} Pending)`
     }
   })
 }
