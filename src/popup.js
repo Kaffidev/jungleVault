@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', function (event) {
         }).catch(err => {
           madePayment = 'CANCELLED_BY_USER'
         })
+
+        document.addEventListener('visibilitychange', async function (event) {
+          madePayment = 'UNFOCUSED'
+        })
       }
 
       show('walletInterface')
@@ -90,6 +94,9 @@ document.addEventListener('DOMContentLoaded', function (event) {
     show('optionsList')
   }
   document.getElementById('changePresentativeConfirm').onclick = changeRepresentative
+  document.getElementById('walletBalance').onclick = () => {
+    updateBalance()
+  }
 })
 
 window.addEventListener('contextmenu', function (e) { e.preventDefault() })
