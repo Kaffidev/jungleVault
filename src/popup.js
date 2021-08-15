@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
 window.addEventListener('contextmenu', function (e) { e.preventDefault() })
 
 function parseBananoAmount (raw) {
-  return parseFloat(bananojs.getBananoPartsAsDecimal(bananojs.bananoUtil.getAmountPartsFromRaw(raw, 'ban_'))) + ''
+  return parseFloat(bananojs.getBananoPartsAsDecimal(bananojs.bananoUtil.getAmountPartsFromRaw(raw, 'ban_'))).toFixed(2) + ''
 }
 
 function changeRepresentative () {
@@ -251,6 +251,7 @@ function showLoadingScreen () {
     document.getElementById('loader').classList = 'pageloader'
   }, 350)
 }
+
 const hide = (id) => {
   const elt = document.getElementById(id)
   if (elt) {
