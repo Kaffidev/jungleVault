@@ -12,3 +12,5 @@
 # Donations
 > Donates will help this extension for publishing it on Chrome Web Store.
 Donation address: ``ban_1kafipomataupan1u16af5wjh18myiqt1aesajnayzewz5btdqfioitzh6h8``
+# Screenshots
+![wallet](https://i.ibb.co/CBPYb1K/Screenshot-12.png "wallet")
