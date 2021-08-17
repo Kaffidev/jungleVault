@@ -1,5 +1,10 @@
 # jungleVault
 > jungleVault is a Banano wallet extension for Chromium based browsers. (Firefox support planned.)
+# Features
+* Fast & modern gui.
+* Basis wallet features.
+* Supports banano: url for direct payments like Metamask.
+* A context menu for looking banano addresses (only shown on banano addresses) easily.
 # Installation
 * Install jungleVault.crx file from repository.
 * Open extensions page on what browser you are using.
