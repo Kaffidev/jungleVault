@@ -1,6 +1,6 @@
 // Url banano: to jungleVault converter
 
-const bananoLinker = document.querySelectorAll('a[href^="banano:"]')
+const bananoLinker = document.querySelectorAll('a[href^="banano:"], a[href^="ban:"]')
 
 bananoLinker.forEach(element => {
   const url = new URL(element.href)
@@ -17,7 +17,7 @@ bananoLinker.forEach(element => {
 const observer = new MutationObserver(records => {
   for (const record of records) {
     for (const added of record.addedNodes) {
-      if (added.nodeType === Node.ELEMENT_NODE && added.matches('a[href^="banano:"]')) {
+      if (added.nodeType === Node.ELEMENT_NODE && (added.matches('a[href^="banano:"]') || added.matches('a[href^="ban:"]'))) {
         const url = new URL(added.href)
         added.href = 'javascript:void(0);'
         added.onclick = () => {

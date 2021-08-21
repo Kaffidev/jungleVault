@@ -8,14 +8,15 @@ function showOnCreeper (clickData, tab) {
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.request === 'createTransaction') {
-    const transactionWindow = window.open(chrome.extension.getURL(`popup.html?recipient=${msg.recipient}&amount=${msg.amount}`), 'junglevaultpayment', 'width=335,height=540,resizable=no,scrollbars=0,top=50,left=1200')
-    transactionWindow.madePayment = undefined
-    const transactionChecker = setInterval(() => {
-      if (transactionWindow.madePayment) {
-        transactionWindow.close()
-        clearInterval(transactionChecker)
-      }
-    }, 100)
+    chrome.windows.create({
+      "url": chrome.extension.getURL(`popup.html?recipient=${msg.recipient}&amount=${msg.amount}`),
+      "type": "popup",
+      "focused": true,
+      "width": 335,
+      "height": 500,
+      "top": 50,
+      "left": 1200
+    })
   }
 
   if (msg.request === 'updateContextMenu') {

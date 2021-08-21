@@ -3,6 +3,8 @@ let bananojs
 let account
 let walletSeed
 
+const url = new URL(location)
+
 document.addEventListener('DOMContentLoaded', function (event) {
   bananojs = window.bananocoinBananojs
   bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api')
@@ -14,24 +16,34 @@ document.addEventListener('DOMContentLoaded', function (event) {
         document.getElementById('loader').classList = 'pageloader'
       }, 300)
     } else {
-      const url = new URL(location)
-
       if (url.searchParams.has('recipient')) {
-        const transactionAmount = parseBananoAmount(url.searchParams.get('amount'))
-        waitForConfirm(url.searchParams.get('recipient'), transactionAmount).then(() => {
-          bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, url.searchParams.get('recipient'), transactionAmount).then(hash => {
-            document.getElementById('toSend').value = ''
-            document.getElementById('toSendAmount').value = ''
-            madePayment = hash
+        if (url.searchParams.get('amount') !== 'null') {
+          const transactionAmount = parseBananoAmount(url.searchParams.get('amount'))
+          waitForConfirm(url.searchParams.get('recipient'), transactionAmount).then(() => {
+            bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, url.searchParams.get('recipient'), transactionAmount).then(hash => {
+              document.getElementById('toSend').value = ''
+              document.getElementById('toSendAmount').value = ''
+              window.close()
+            }).catch(err => {
+              window.close()
+            })
           }).catch(err => {
-            madePayment = 'WALLET_ERROR'
+            window.close()
           })
-        }).catch(err => {
-          madePayment = 'CANCELLED_BY_USER'
-        })
+
+        } else {
+          document.getElementById('toSend').value = url.searchParams.get('recipient')
+          hide('openSettings')
+          show('optionsList')
+          show('sendMenu') 
+        }
+
+        window.onresize = function() {
+          window.resizeTo(335, 460)
+        }
 
         document.addEventListener('visibilitychange', async function (event) {
-          madePayment = 'UNFOCUSED'
+          window.close()
         })
       }
 
@@ -124,22 +136,41 @@ function sendBananos () {
   const toSend = document.getElementById('toSend').value
   const toSendAmount = document.getElementById('toSendAmount').value
 
-  waitForConfirm(toSend, toSendAmount).then(() => {
-    bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
-      updateBalance()
-      document.getElementById('toSend').value = ''
-      document.getElementById('toSendAmount').value = ''
-      sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+  if (url.searchParams.has('recipient')) {
+    waitForConfirm(toSend, toSendAmount).then(() => {
+      bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
+        updateBalance()
+        document.getElementById('toSend').value = ''
+        document.getElementById('toSendAmount').value = ''
+        window.close()
+      }).catch(err => {
+        if(err.stack.includes('balance') && err.stack.includes('small')) {
+          window.close()
+        } else {
+          window.close()
+        }
+      })
     }).catch(err => {
-      if(err.stack.includes('balance') && err.stack.includes('small')) {
-        sendNotification('Insufficent balance!')
-      } else {
-        sendNotification(err)
-      }
+      window.close()
     })
-  }).catch(err => {
-    sendNotification('Transaction cancelled by user.')
-  })
+   } else {
+    waitForConfirm(toSend, toSendAmount).then(() => {
+      bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
+        updateBalance()
+        document.getElementById('toSend').value = ''
+        document.getElementById('toSendAmount').value = ''
+        sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+      }).catch(err => {
+        if(err.stack.includes('balance') && err.stack.includes('small')) {
+          sendNotification('Insufficent balance!')
+        } else {
+          sendNotification(err)
+        }
+      })
+    }).catch(err => {
+      sendNotification('Transaction cancelled by user.')
+    })
+  }
 }
 
 function updateBalance () {
