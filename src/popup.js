@@ -30,15 +30,14 @@ document.addEventListener('DOMContentLoaded', function (event) {
           }).catch(err => {
             window.close()
           })
-
         } else {
           document.getElementById('toSend').value = url.searchParams.get('recipient')
           hide('openSettings')
           show('optionsList')
-          show('sendMenu') 
+          show('sendMenu')
         }
 
-        window.onresize = function() {
+        window.onresize = function () {
           window.resizeTo(335, 460)
         }
 
@@ -144,7 +143,7 @@ function sendBananos () {
         document.getElementById('toSendAmount').value = ''
         window.close()
       }).catch(err => {
-        if(err.stack.includes('balance') && err.stack.includes('small')) {
+        if (err.stack.includes('balance') && err.stack.includes('small')) {
           window.close()
         } else {
           window.close()
@@ -153,7 +152,7 @@ function sendBananos () {
     }).catch(err => {
       window.close()
     })
-   } else {
+  } else {
     waitForConfirm(toSend, toSendAmount).then(() => {
       bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
         updateBalance()
@@ -161,7 +160,7 @@ function sendBananos () {
         document.getElementById('toSendAmount').value = ''
         sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
       }).catch(err => {
-        if(err.stack.includes('balance') && err.stack.includes('small')) {
+        if (err.stack.includes('balance') && err.stack.includes('small')) {
           sendNotification('Insufficent balance!')
         } else {
           sendNotification(err)

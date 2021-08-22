@@ -9,13 +9,13 @@ function showOnCreeper (clickData, tab) {
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.request === 'createTransaction') {
     chrome.windows.create({
-      "url": chrome.extension.getURL(`popup.html?recipient=${msg.recipient}&amount=${msg.amount}`),
-      "type": "popup",
-      "focused": true,
-      "width": 335,
-      "height": 500,
-      "top": 50,
-      "left": 1200
+      url: chrome.extension.getURL(`popup.html?recipient=${msg.recipient}&amount=${msg.amount}`),
+      type: 'popup',
+      focused: true,
+      width: 335,
+      height: 500,
+      top: 50,
+      left: 1200
     })
   }
 
