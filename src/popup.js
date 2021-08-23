@@ -1,13 +1,17 @@
 let bananojs
 
-let account
-let walletSeed
+let account, walletSeed, bPriceUSD
 
 const url = new URL(location)
 
 document.addEventListener('DOMContentLoaded', function (event) {
   bananojs = window.bananocoinBananojs
   bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api')
+
+  var Httpreq = new XMLHttpRequest()
+  Httpreq.open("GET",'https://api.coingecko.com/api/v3/simple/price?ids=banano&vs_currencies=usd',false)
+  Httpreq.send(null)
+  bPriceUSD = JSON.parse(Httpreq.responseText).banano.usd
 
   chrome.storage.local.get('seed', function (seed) {
     if (typeof seed.seed === 'undefined') {
@@ -108,9 +112,49 @@ document.addEventListener('DOMContentLoaded', function (event) {
   document.getElementById('walletBalance').onclick = () => {
     updateBalance()
   }
+
+  document.getElementById('walletBalance').addEventListener("mouseover", showTip, false)
+  document.getElementById('walletBalance').addEventListener("mouseout", hideTip, false)
+
+  document.addEventListener('mousemove', function (e) {
+    if(document.getElementById('tip')) {
+      document.getElementById('tip').style.left = e.pageX + 'px'
+      document.getElementById('tip').style.top = (e.pageY - 30) + 'px'
+    }
+  })
 })
 
-window.addEventListener('contextmenu', function (e) { e.preventDefault() })
+// window.addEventListener('contextmenu', function (e) { e.preventDefault() })
+
+function showTip () {    
+  var tip = document.createElement("span");
+  tip.className = "tooltip"
+  tip.id = "tip"
+  tip.innerHTML = (parseFloat(document.getElementById('walletBalance').innerHTML.replace('BAN', '')) * bPriceUSD).toFixed(2) + ' $'
+  tip.style.position = 'absolute'
+  document.getElementById('walletInterface').appendChild(tip)
+  tip.style.opacity = "0"
+  var intId = setInterval(function(){
+      newOpacity = parseFloat(tip.style.opacity)+0.1
+      tip.style.opacity = newOpacity.toString()
+      if(tip.style.opacity === "1"){
+          clearInterval(intId);
+      }
+  }, 25)
+}
+
+function hideTip () {
+  var tip = document.getElementById("tip")
+  var intId = setInterval(function(){
+      newOpacity = parseFloat(tip.style.opacity)-0.1
+      tip.style.opacity = newOpacity.toString()
+      if(tip.style.opacity === "0"){
+          clearInterval(intId)
+          tip.remove()
+      }
+  }, 25)
+  tip.remove()
+}
 
 function parseBananoAmount (raw) {
   return parseFloat(bananojs.getBananoPartsAsDecimal(bananojs.bananoUtil.getAmountPartsFromRaw(raw, 'ban_'))).toFixed(2) + ''
