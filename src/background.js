@@ -1,11 +1,5 @@
 let cmid
 
-function showOnCreeper (clickData, tab) {
-  chrome.tabs.create({
-    url: `https://creeper.banano.cc/explorer/account/${clickData.selectionText}`
-  })
-}
-
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.request === 'createTransaction') {
     chrome.windows.create({
@@ -14,8 +8,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       focused: true,
       width: 335,
       height: 500,
-      top: 50,
-      left: 1200
+      top: 60,
+      left: parseInt(window.screen.width)
     })
   }
 
@@ -47,3 +41,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     }
   }
 })
+
+function showOnCreeper (clickData, tab) {
+  chrome.tabs.create({
+    url: `https://creeper.banano.cc/explorer/account/${clickData.selectionText}`
+  })
+}

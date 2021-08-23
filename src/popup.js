@@ -308,6 +308,13 @@ function waitForConfirm (toAddress, amount) {
   })
 }
 
+const getRandomHex32 = () => {
+  const array = new Uint32Array(32)
+  window.crypto.getRandomValues(array)
+  const hex = getByteArrayAsHexString(array)
+  return hex
+}
+
 function showLoadingScreen () {
   document.getElementById('loader').classList = 'pageloader is-active'
   setTimeout(() => {
@@ -327,13 +334,6 @@ const show = (id) => {
   if (elt) {
     elt.style.display = ''
   }
-}
-
-const getRandomHex32 = () => {
-  const array = new Uint32Array(32)
-  window.crypto.getRandomValues(array)
-  const hex = getByteArrayAsHexString(array)
-  return hex
 }
 
 const getByteArrayAsHexString = (byteArray) => {
