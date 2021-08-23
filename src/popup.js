@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
 function showTip () {    
   var tip = document.createElement("span");
-  tip.className = "tooltip"
+  tip.className = "has-text-warning"
   tip.id = "tip"
   tip.innerHTML = (parseFloat(document.getElementById('walletBalance').innerHTML.replace('BAN', '')) * bPriceUSD).toFixed(2) + ' $'
   tip.style.position = 'absolute'
@@ -179,41 +179,26 @@ function sendBananos () {
   const toSend = document.getElementById('toSend').value
   const toSendAmount = document.getElementById('toSendAmount').value
 
-  if (url.searchParams.has('recipient')) {
-    waitForConfirm(toSend, toSendAmount).then(() => {
-      bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
-        updateBalance()
-        document.getElementById('toSend').value = ''
-        document.getElementById('toSendAmount').value = ''
-        window.close()
-      }).catch(err => {
-        if (err.stack.includes('balance') && err.stack.includes('small')) {
-          window.close()
-        } else {
-          window.close()
-        }
-      })
-    }).catch(err => {
-      window.close()
-    })
-  } else {
     waitForConfirm(toSend, toSendAmount).then(() => {
       bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
         updateBalance()
         document.getElementById('toSend').value = ''
         document.getElementById('toSendAmount').value = ''
         sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
+        if (url.searchParams.has('recipient')) { window.close() }
       }).catch(err => {
         if (err.stack.includes('balance') && err.stack.includes('small')) {
           sendNotification('Insufficent balance!')
+          if (url.searchParams.has('recipient')) { window.close() }
         } else {
           sendNotification(err)
+          if (url.searchParams.has('recipient')) { window.close() }
         }
       })
     }).catch(err => {
       sendNotification('Transaction cancelled by user.')
+      if (url.searchParams.has('recipient')) { window.close() }
     })
-  }
 }
 
 function updateBalance () {
