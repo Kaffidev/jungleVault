@@ -1,6 +1,4 @@
-let bananojs
-
-let account, walletSeed, bPriceUSD
+let bananojs, account, walletSeed, bPriceUSD
 
 const url = new URL(location)
 
@@ -8,10 +6,16 @@ document.addEventListener('DOMContentLoaded', function (event) {
   bananojs = window.bananocoinBananojs
   bananojs.setBananodeApiUrl('https://kaliumapi.appditto.com/api')
 
-  var Httpreq = new XMLHttpRequest()
-  Httpreq.open("GET",'https://api.coingecko.com/api/v3/simple/price?ids=banano&vs_currencies=usd',false)
-  Httpreq.send(null)
-  bPriceUSD = JSON.parse(Httpreq.responseText).banano.usd
+  const bPriceChecker = new XMLHttpRequest()
+  bPriceChecker.open('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=banano&vs_currencies=usd', true)
+  bPriceChecker.onload = function (e) {
+    if (bPriceChecker.status === 200) {
+      bPriceUSD = JSON.parse(bPriceChecker.responseText).banano.usd
+    } else {
+      bPriceUSD = 0.00
+    }
+  }
+  bPriceChecker.send(null)
 
   chrome.storage.local.get('seed', function (seed) {
     if (typeof seed.seed === 'undefined') {
@@ -113,11 +117,11 @@ document.addEventListener('DOMContentLoaded', function (event) {
     updateBalance()
   }
 
-  document.getElementById('walletBalance').addEventListener("mouseover", showTip, false)
-  document.getElementById('walletBalance').addEventListener("mouseout", hideTip, false)
+  document.getElementById('walletBalance').addEventListener('mouseover', showTip, false)
+  document.getElementById('walletBalance').addEventListener('mouseout', hideTip, false)
 
   document.addEventListener('mousemove', function (e) {
-    if(document.getElementById('tip')) {
+    if (document.getElementById('tip')) {
       document.getElementById('tip').style.left = e.pageX + 'px'
       document.getElementById('tip').style.top = (e.pageY - 30) + 'px'
     }
@@ -126,32 +130,32 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
 // window.addEventListener('contextmenu', function (e) { e.preventDefault() })
 
-function showTip () {    
-  var tip = document.createElement("span");
-  tip.className = "has-text-warning"
-  tip.id = "tip"
+function showTip () {
+  const tip = document.createElement('span')
+  tip.className = 'has-text-warning'
+  tip.id = 'tip'
   tip.innerHTML = (parseFloat(document.getElementById('walletBalance').innerHTML.replace('BAN', '')) * bPriceUSD).toFixed(2) + ' $'
   tip.style.position = 'absolute'
   document.getElementById('walletInterface').appendChild(tip)
-  tip.style.opacity = "0"
-  var intId = setInterval(function(){
-      newOpacity = parseFloat(tip.style.opacity)+0.1
-      tip.style.opacity = newOpacity.toString()
-      if(tip.style.opacity === "1"){
-          clearInterval(intId);
-      }
+  tip.style.opacity = '0'
+  const intId = setInterval(function () {
+    newOpacity = parseFloat(tip.style.opacity) + 0.1
+    tip.style.opacity = newOpacity.toString()
+    if (tip.style.opacity === '1') {
+      clearInterval(intId)
+    }
   }, 25)
 }
 
 function hideTip () {
-  var tip = document.getElementById("tip")
-  var intId = setInterval(function(){
-      newOpacity = parseFloat(tip.style.opacity)-0.1
-      tip.style.opacity = newOpacity.toString()
-      if(tip.style.opacity === "0"){
-          clearInterval(intId)
-          tip.remove()
-      }
+  const tip = document.getElementById('tip')
+  const intId = setInterval(function () {
+    newOpacity = parseFloat(tip.style.opacity) - 0.1
+    tip.style.opacity = newOpacity.toString()
+    if (tip.style.opacity === '0') {
+      clearInterval(intId)
+      tip.remove()
+    }
   }, 25)
   tip.remove()
 }
@@ -179,26 +183,33 @@ function sendBananos () {
   const toSend = document.getElementById('toSend').value
   const toSendAmount = document.getElementById('toSendAmount').value
 
-    waitForConfirm(toSend, toSendAmount).then(() => {
-      bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
-        updateBalance()
-        document.getElementById('toSend').value = ''
-        document.getElementById('toSendAmount').value = ''
-        sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
-        if (url.searchParams.has('recipient')) { window.close() }
-      }).catch(err => {
-        if (err.stack.includes('balance') && err.stack.includes('small')) {
-          sendNotification('Insufficent balance!')
-          if (url.searchParams.has('recipient')) { window.close() }
-        } else {
-          sendNotification(err)
-          if (url.searchParams.has('recipient')) { window.close() }
-        }
-      })
-    }).catch(err => {
-      sendNotification('Transaction cancelled by user.')
+  waitForConfirm(toSend, toSendAmount).then(() => {
+    bananojs.sendBananoWithdrawalFromSeed(walletSeed, 0, toSend, toSendAmount).then(hash => {
+      updateBalance()
+      document.getElementById('toSend').value = ''
+      document.getElementById('toSendAmount').value = ''
+      sendNotification(`Banano send successfully!\nView on <a target="_blank" href="https://creeper.banano.cc/explorer/block/${hash}">creeper</a>`)
       if (url.searchParams.has('recipient')) { window.close() }
+    }).catch(err => {
+      if (err.stack.includes('balance') && err.stack.includes('small')) {
+        sendNotification('Insufficent balance!')
+        if (url.searchParams.has('recipient')) { window.close() }
+      } else {
+        sendNotification(err)
+        if (url.searchParams.has('recipient')) { window.close() }
+      }
     })
+  }).catch(err => {
+    sendNotification('Transaction cancelled by user.')
+    if (url.searchParams.has('recipient')) { window.close() }
+  })
+}
+
+function receiveBananos () {
+  bananojs.receiveBananoDepositsForSeed(walletSeed, 0, account).then(output => {
+    sendNotification('Received Bananos!')
+    updateBalance()
+  })
 }
 
 function updateBalance () {
@@ -229,13 +240,6 @@ function importFromSeed () {
       document.getElementById('monKey').src = `http://monkey.banano.cc/api/v1/monkey/${account}`
       updateBalance()
     })
-  })
-}
-
-function receiveBananos () {
-  bananojs.receiveBananoDepositsForSeed(walletSeed, 0, account).then(output => {
-    sendNotification('Received Bananos!')
-    updateBalance()
   })
 }
 
