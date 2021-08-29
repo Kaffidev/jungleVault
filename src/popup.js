@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
   })
 })
 
-// window.addEventListener('contextmenu', function (e) { e.preventDefault() })
+window.addEventListener('contextmenu', function (e) { e.preventDefault() })
 
 function showTip () {
   const tip = document.createElement('span')
