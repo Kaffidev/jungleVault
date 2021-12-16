@@ -11,6 +11,6 @@
 * Drag & drop crx file on it. Accept installation and done.
 # Donations
 > Donates will help this extension for publishing it on Chrome Web Store.
-Donation address: ``ban_1kafipomataupan1u16af5wjh18myiqt1aesajnayzewz5btdqfioitzh6h8``
+Donation address: ``ban_1kaffiopgpdds9xzsq5fc6no1nbxykqsmh1i18ak9x9xzr9nqby5esgccnn9``
 # Screenshots
 ![wallet](https://i.ibb.co/CBPYb1K/Screenshot-12.png "wallet")
